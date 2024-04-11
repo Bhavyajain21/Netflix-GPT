@@ -1,13 +1,14 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../utils/firebase";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import appStore from "../utils/appStore";
 const Header = () => {
-  const navigate = useNavigate();
+  console.log(auth);
+  const user = useSelector((store) => store.user);
+  console.log(user);
   const handleSignout = () => {
     signOut(auth)
-      .then(() => {
-        navigate("/");
-      })
+      .then(() => {})
       .catch((error) => {
         console.log(error);
       });
@@ -20,11 +21,9 @@ const Header = () => {
         </button>
         <div className="flex items-center">
           <div>
-            <img
-              src="https://avatars.githubusercontent.com/u/64700692?v=4"
-              alt=""
-              className=" w-10 rounded-full"
-            />
+            {user ? (
+              <img src={user.photoURL} alt="" className=" w-10 rounded-full" />
+            ) : null}
           </div>
           <button
             onClick={handleSignout}
