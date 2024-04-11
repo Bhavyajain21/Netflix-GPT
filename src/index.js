@@ -5,22 +5,29 @@ import App from "./App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Login from "./components/Login/Login";
 import Body from "./components/Body";
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
+import { Provider } from "react-redux";
+import appStore from "./utils/appStore";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
-  },
-  {
-    path: "/browse",
-    element: <Body />,
+    element: <App />,
+    children: [
+      {
+        path: "/",
+        element: <Login />,
+      },
+      {
+        path: "browse",
+        element: <Body />,
+      },
+    ],
   },
 ]);
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router}>
-      <App />
-    </RouterProvider>
+    <Provider store={appStore}>
+      <RouterProvider router={router}></RouterProvider>
+    </Provider>
   </React.StrictMode>
 );

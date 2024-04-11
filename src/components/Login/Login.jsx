@@ -1,8 +1,20 @@
 import { useRef, useState } from "react";
 import { checkValidInputUserData } from "../../utils/validate";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../../utils/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../../utils/userSlice";
 const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const email = useRef();
   const name = useRef();
   const password = useRef();
@@ -13,6 +25,45 @@ const Login = () => {
     // console.log(email.current.value);
     // console.log(password.current.value);
     // setErrorMessage(checkValidInputUserData(email, password));
+    if (!isLoggedIn) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          updateProfile(user, {
+            displayName: name.current.value,
+            photoURL: "https://avatars.githubusercontent.com/u/64700692?v=4",
+          }).then(() => {
+            const { uid, email, displayName, photoURL } = user;
+
+            dispatch(addUser({ uid, email, displayName, photoURL }));
+            navigate("/browse");
+          });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorMessage);
+        });
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.errorMessage;
+          setErrorMessage(errorMessage);
+        });
+    }
   };
   return (
     <div className="flex justify-center items-center h-screen">
